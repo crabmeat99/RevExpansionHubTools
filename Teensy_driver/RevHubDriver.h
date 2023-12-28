@@ -56,9 +56,9 @@ public:
   u_int8_t CreateCRC(u_int8_t *byte, int len);
   void LynxSetMotorChannelModeCommand(uint8_t *packet,int *packetLen, int dest_module, int motor, RevHubDriver::motorMode mode, bool floatAtZero);
   void CommandFailSafe(uint8_t *packet,int *packetLen, int dest_module);
-  void ReadPacket();
+  void ReadPacket(HardwareSerial *s);
 
-  RevHubDriver(HardwareSerial *serial, int rs485_pin);
+  RevHubDriver();
   virtual ~RevHubDriver();
 
 

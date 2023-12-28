@@ -12,18 +12,12 @@
 #include "HardwareSerial.h"
 #include "Arduino.h"
 
-
-
-RevHubDriver::RevHubDriver(HardwareSerial *serial, int rs485_pin) 
+RevHubDriver::RevHubDriver() 
 {
-    hw_serial = serial;
-    hw_serial->begin(460800);
-    hw_serial->transmitterEnable(18);
 }
 
 RevHubDriver::~RevHubDriver()
 {
-
 }
 
 uint8_t RevHubDriver::CreateCRC(u_int8_t *byte, int len) {
@@ -82,15 +76,16 @@ void RevHubDriver::CommandFailSafe(uint8_t *buf,int *bufLen,int dest_module) {
     *bufLen = sizeof(MyPacket);
 }
 
-void RevHubDriver::ReadPacket() {
+void RevHubDriver::ReadPacket(HardwareSerial *s) {
     ReadState state = START;
     bool done = false;
+    uint8_t incoming_byte;
 
     while (!done) {
         switch(state) {
             case START:
-            // if (Serial.available() > 0) {
-            //    ncomingByte = Serial.read();
+            if (s->available() > 0) {};
+                incoming_byte = s->read();
             break;
             case  GOT44:
             break;
