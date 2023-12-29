@@ -84,10 +84,19 @@ void RevHubDriver::ReadPacket(HardwareSerial *s) {
     while (!done) {
         switch(state) {
             case START:
-            if (s->available() > 0) {};
+            if (s->available() > 0) {
                 incoming_byte = s->read();
+                if (incoming_byte == 0x44) state = GOT44;
+            }
             break;
             case  GOT44:
+                if (s->available() > 0) {
+                incoming_byte = s->read();
+                if (incoming_byte == 0x44) state = GOT44;
+                else if (incoming_byte == 0x4b) state = FOUND_PACKET;
+                else if (incoming_byte ==  0x44) state = GOT44;
+                else state = START;
+            }
             break;
             case  FOUND_PACKET:
             break;
