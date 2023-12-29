@@ -54,16 +54,19 @@ public:
   HardwareSerial *hw_serial;
 
   u_int8_t CreateCRC(u_int8_t *byte, int len);
-  void LynxSetMotorChannelModeCommand(uint8_t *packet,int *packetLen, int dest_module, int motor, RevHubDriver::motorMode mode, bool floatAtZero);
-  void CommandFailSafe(uint8_t *packet,int *packetLen, int dest_module);
-  void ReadPacket(HardwareSerial *s);
+  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::motorMode mode, bool floatAtZero);
+  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
+  
+  void CommandFailSafe(uint8_t *packet,int *packetLen);
+  int ReadPacket(HardwareSerial *s);
 
   RevHubDriver();
   virtual ~RevHubDriver();
 
+  uint8_t packet_number_=1;
+  uint8_t dest_module_=2;
 
 protected:
-  uint8_t packet_number_=1;
 
 };
 
