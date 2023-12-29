@@ -39,7 +39,7 @@ struct __attribute__ ((packed)) PacketMotorMode {
 class RevHubDriver {
 
 public:
-  enum motorMode {
+  enum MotorMode {
     RUN_WITHOUT_ENCODER = 0,
     RUN_USING_ENCODER = 1,
     RUN_TO_POSITION = 2
@@ -51,17 +51,20 @@ public:
     FOUND_PACKET
   };
 
-  HardwareSerial *hw_serial;
-
-  u_int8_t CreateCRC(u_int8_t *byte, int len);
-  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::motorMode mode, bool floatAtZero);
-  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
-  
-  void CommandFailSafe(uint8_t *packet,int *packetLen);
-  int ReadPacket(HardwareSerial *s);
-
   RevHubDriver();
   virtual ~RevHubDriver();
+
+  int yyy();
+  
+  u_int8_t CreateCRC(u_int8_t *byte, int len);
+  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero);
+  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
+  
+  void CommandFailSafe(uint8_t *packet,int *packet_len);
+  void xxx();
+  int ReadPacket(HardwareSerial *s);
+
+
 
   uint8_t packet_number_=1;
   uint8_t dest_module_=2;

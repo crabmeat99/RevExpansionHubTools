@@ -28,7 +28,7 @@ uint8_t RevHubDriver::CreateCRC(u_int8_t *byte, int len) {
     return sum;
 }
 
-void RevHubDriver::LynxSetMotorChannelModeCommand(uint8_t *buf, int *bufLen, uint8_t motor, RevHubDriver::motorMode mode, bool floatAtZero) {
+void RevHubDriver::LynxSetMotorChannelModeCommand(uint8_t *buffer, int *buffer_length, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero) {
     struct MyPacket {
         PacketHeader h;
         PacketMotorMode m;
@@ -36,7 +36,7 @@ void RevHubDriver::LynxSetMotorChannelModeCommand(uint8_t *buf, int *bufLen, uin
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 11+3;
@@ -50,11 +50,11 @@ void RevHubDriver::LynxSetMotorChannelModeCommand(uint8_t *buf, int *bufLen, uin
     packet->m.float_at_zero=mode;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::LynxSetMotorConstantPowerCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint16_t power) {
+void RevHubDriver::LynxSetMotorConstantPowerCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint16_t power) {
     struct MyPacket {
         PacketHeader h;
         uint8_t motor;
@@ -63,7 +63,7 @@ void RevHubDriver::LynxSetMotorConstantPowerCommand(uint8_t *buf,int *bufLen, ui
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 10+3+1;
@@ -76,22 +76,27 @@ void RevHubDriver::LynxSetMotorConstantPowerCommand(uint8_t *buf,int *bufLen, ui
     packet->power=power;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
 
 
+int yyy() {
+    int x;
 
+    x=10;
+    return x;
+}
 
-void RevHubDriver::CommandFailSafe(uint8_t *buf,int *bufLen) {
+void RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
     struct MyPacket {
         PacketHeader h;
         uint8_t crc;
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 11;
@@ -102,9 +107,15 @@ void RevHubDriver::CommandFailSafe(uint8_t *buf,int *bufLen) {
     packet->h.packet_id=(uint16_t)LynxCommand::COMMAND_NUMBER_FAIL_SAFE;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
+
+// void xxx() {
+//     // for (int i=0;i<buffer_length;i++) {
+//     //     s->write(buffer[i]);
+//     // }
+// }
 
 int RevHubDriver::ReadPacket(HardwareSerial *s) {
     ReadState state = START;
@@ -122,10 +133,12 @@ int RevHubDriver::ReadPacket(HardwareSerial *s) {
             }
             break;
             case  GOT44:
-                if (s->available() > 0) incoming_byte = s->read();
-                if (incoming_byte == 0x4b) state = FOUND_PACKET;
-                else if (incoming_byte == 0x44) state = GOT44;
-                else state = START;
+                if (s->available() > 0) {
+                    incoming_byte = s->read();
+                    if (incoming_byte == 0x4b) state = FOUND_PACKET;
+                    else if (incoming_byte == 0x44) state = GOT44;
+                    else state = START;
+                }
             break;
             case  FOUND_PACKET:
                 // read length 16bit word
@@ -146,55 +159,3 @@ int RevHubDriver::ReadPacket(HardwareSerial *s) {
     digitalWrite(17, LOW); 
     return length;
 }
-// import time
-// import serial
-// from commands import *
-
-// def xread_packet(ser):
-// 	return
-
-// def read_packet(ser):
-// 	state = 'START'
-// 	next_state = 'START'
-// 	done = False
-// 	pbuf = bytearray()
-// 	while not done:
-// 		if state == 'START':     
-// 			while ser.inWaiting() == 0:
-// 				pass
-// 			temp = ser.read(1)
-// 			if temp == b'\x44':
-// 				next_state = 'GOT44'
-// 		elif state == 'GOT44':
-// 			while ser.inWaiting() == 0:
-// 				pass
-// 			temp = ser.read(1)
-// 			if temp == b'\x4b':
-// 				next_state = 'FOUND_PACKET'
-// 			elif temp == b'\x44':
-// 				next_state = 'GOT44'
-// 			else:
-// 				next_state = 'START'
-// 		elif state == 'FOUND_PACKET':
-// 			while ser.inWaiting() == 0:
-// 				pass
-// 			temp = ser.read(1)  # low byte of length
-			
-// 			# Construct what we have so far
-// 			pbuf = bytearray()  # clear buffer
-// 			pbuf += b'\x44'
-// 			pbuf += b'\x4b'
-// 			pbuf += temp
-
-// 			# Read the rest of the packet
-// 			len = int.from_bytes(temp, "little")
-// 			pbuf += ser.read(len - 3)
-
-// 			next_state = 'DONE'
-// 		elif state == 'DONE':
-// 			done = True
-// 		state = next_state
-// 		#time.sleep(.1)
-
-// 	return(pbuf)
-
