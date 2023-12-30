@@ -51,35 +51,21 @@ public:
     FOUND_PACKET
   };
 
-  HardwareSerial *hw_serial;
-
-  u_int8_t CreateCRC(u_int8_t *byte, int len);
-  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::motorMode mode, bool floatAtZero);
-  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
-  void LynxSetMotorTargetVelocityCommand(uint8_t *buf,int *bufLen, uint8_t motor, int16_t velocity);
-  void LynxSetMotorChannelEnableCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t enable);
-  void LynxSetMotorTargetPositionCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint32_t target, uint16_t tolerance);
-  void LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t mode);
-
-
-
-  void CommandFailSafe(uint8_t *packet,int *packetLen);
-  int ReadPacket(HardwareSerial *s);
-
   RevHubDriver();
   virtual ~RevHubDriver();
-
-  int yyy();
   
   u_int8_t CreateCRC(u_int8_t *byte, int len);
-  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero);
-  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
-  
+  void LynxSetMotorChannelModeCommand(uint8_t *buffer,int *buffer_len, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero);
+  void LynxSetMotorConstantPowerCommand(uint8_t *buffer, int *buffer_length, uint8_t motor, uint16_t power);
+  void LynxSetMotorTargetVelocityCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, int16_t velocity);
+  void LynxSetMotorChannelEnableCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t enable);
+  void LynxSetMotorTargetPositionCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint32_t target, uint16_t tolerance);
+  void LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t mode);
+
   void CommandFailSafe(uint8_t *packet,int *packet_len);
-  void xxx();
+
+  void WritePacket(HardwareSerial *s, uint8_t *buffer, int buffer_length);
   int ReadPacket(HardwareSerial *s);
-
-
 
   uint8_t packet_number_=1;
   uint8_t dest_module_=2;

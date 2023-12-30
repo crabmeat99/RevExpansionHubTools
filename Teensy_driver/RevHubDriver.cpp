@@ -80,7 +80,7 @@ void RevHubDriver::LynxSetMotorConstantPowerCommand(uint8_t *buffer,int *buffer_
     *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::LynxSetMotorTargetVelocityCommand(uint8_t *buf,int *bufLen, uint8_t motor, int16_t velocity) {
+void RevHubDriver::LynxSetMotorTargetVelocityCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, int16_t velocity) {
     struct MyPacket {
         PacketHeader h;
         uint8_t motor;
@@ -89,7 +89,7 @@ void RevHubDriver::LynxSetMotorTargetVelocityCommand(uint8_t *buf,int *bufLen, u
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
     packet->h.header = 0x4b44;
     packet->h.length = 10+3+1;
     packet->h.dest_module=dest_module_;
@@ -101,11 +101,11 @@ void RevHubDriver::LynxSetMotorTargetVelocityCommand(uint8_t *buf,int *bufLen, u
     packet->velocity=velocity;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::LynxSetMotorChannelEnableCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t enable) {
+void RevHubDriver::LynxSetMotorChannelEnableCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t enable) {
     struct MyPacket {
         PacketHeader h;
         uint8_t motor;
@@ -114,7 +114,7 @@ void RevHubDriver::LynxSetMotorChannelEnableCommand(uint8_t *buf,int *bufLen, ui
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 10+2+1;
@@ -127,11 +127,11 @@ void RevHubDriver::LynxSetMotorChannelEnableCommand(uint8_t *buf,int *bufLen, ui
     packet->enable=enable;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::LynxSetMotorTargetPositionCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint32_t target, uint16_t tolerance) {
+void RevHubDriver::LynxSetMotorTargetPositionCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint32_t target, uint16_t tolerance) {
     struct MyPacket {
         PacketHeader h;
         uint8_t motor;
@@ -141,7 +141,7 @@ void RevHubDriver::LynxSetMotorTargetPositionCommand(uint8_t *buf,int *bufLen, u
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 10+1+4+2+1;
@@ -155,11 +155,11 @@ void RevHubDriver::LynxSetMotorTargetPositionCommand(uint8_t *buf,int *bufLen, u
     packet->tolerance=tolerance;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t mode) {
+void RevHubDriver::LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t mode) {
     struct MyPacket {
         PacketHeader h;
         uint8_t motor;
@@ -168,7 +168,7 @@ void RevHubDriver::LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buf,i
     };
 
     MyPacket *packet;
-    packet = (struct MyPacket *) buf;
+    packet = (struct MyPacket *) buffer;
 
     packet->h.header = 0x4b44;
     packet->h.length = 10+2+1;
@@ -181,8 +181,8 @@ void RevHubDriver::LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buf,i
     packet->mode=mode;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
-    // return bufLen
-    *bufLen = sizeof(MyPacket);
+    // return buffer_length
+    *buffer_length = sizeof(MyPacket);
 }
 
 void RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
@@ -207,11 +207,11 @@ void RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
     *buffer_length = sizeof(MyPacket);
 }
 
-// void xxx() {
-//     // for (int i=0;i<buffer_length;i++) {
-//     //     s->write(buffer[i]);
-//     // }
-// }
+void RevHubDriver::WritePacket(HardwareSerial *s, uint8_t *buffer, int buffer_length) {
+    for (int i=0;i<buffer_length;i++) {
+        s->write(buffer[i]);
+    }
+}
 
 int RevHubDriver::ReadPacket(HardwareSerial *s) {
     ReadState state = START;
