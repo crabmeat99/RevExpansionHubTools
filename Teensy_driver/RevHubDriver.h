@@ -51,6 +51,9 @@ public:
     FOUND_PACKET
   };
 
+  uint8_t read_buffer[100];
+  int read_buffer_length;
+
   RevHubDriver();
   virtual ~RevHubDriver();
   
@@ -62,7 +65,7 @@ public:
   void LynxSetMotorTargetPositionCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint32_t target, uint16_t tolerance);
   void LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t mode);
 
-  void CommandFailSafe(uint8_t *packet,int *packet_len);
+  int CommandFailSafe(uint8_t *packet,int *packet_len);
 
   void WritePacket(HardwareSerial *s, uint8_t *buffer, int buffer_length);
   int ReadPacket(HardwareSerial *s);

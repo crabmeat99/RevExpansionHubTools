@@ -185,7 +185,7 @@ void RevHubDriver::LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buffe
     *buffer_length = sizeof(MyPacket);
 }
 
-void RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
+int RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
     struct MyPacket {
         PacketHeader h;
         uint8_t crc;
@@ -198,13 +198,16 @@ void RevHubDriver::CommandFailSafe(uint8_t *buffer,int *buffer_length) {
     packet->h.length = 11;
     packet->h.dest_module=dest_module_;
     packet->h.source_module=0;
-    packet->h.packet_num=packet_number_ = (packet_number_++==0) ? 1:packet_number_;  // skip zero, saw in trace
+    packet->h.packet_num=packet_number_++;
+    packet_number_ = (packet_number_==0) ? 1:packet_number_;  // skip zero, saw in trace
     packet->h.reference_num=0;
     packet->h.packet_id=(uint16_t)LynxCommand::COMMAND_NUMBER_FAIL_SAFE;
     packet->crc = CreateCRC((u_int8_t *)packet, sizeof(MyPacket)-1);
 
     // return buffer_length
     *buffer_length = sizeof(MyPacket);
+
+    return packet->h.packet_num;
 }
 
 void RevHubDriver::WritePacket(HardwareSerial *s, uint8_t *buffer, int buffer_length) {
@@ -218,19 +221,21 @@ int RevHubDriver::ReadPacket(HardwareSerial *s) {
     bool done = false;
     uint8_t incoming_byte;
     uint16_t length;
+    int message_num = 0;
 
     digitalWrite(17, HIGH);
+    read_buffer_length = 0;
     while (!done) {
         switch(state) {
             case START:
             if (s->available() > 0) {
-                incoming_byte = s->read();
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
                 if (incoming_byte == 0x44) state = GOT44;
             }
             break;
             case  GOT44:
                 if (s->available() > 0) {
-                    incoming_byte = s->read();
+                    incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
                     if (incoming_byte == 0x4b) state = FOUND_PACKET;
                     else if (incoming_byte == 0x44) state = GOT44;
                     else state = START;
@@ -239,19 +244,28 @@ int RevHubDriver::ReadPacket(HardwareSerial *s) {
             case  FOUND_PACKET:
                 // read length 16bit word
                 while (s->available() < 2) {}
-                incoming_byte = s->read();
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
                 length = incoming_byte;
-                incoming_byte = s->read();
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
                 length = length | incoming_byte << 8;
+
+                // temp read for debug
+                while (s->available() < 4) {}
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
+                incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
+                message_num = incoming_byte;
+
                 // for now, eat the rest of the packet
-                while (s->available() < (length-4)) {};
-                for (int i=0;i< length - 4;i++) {
-                    incoming_byte = s->read();
+                while (s->available() < ((length-4)-4)) {};
+                for (int i=0;i< ((length-4)-4);i++) {
+                    incoming_byte = s->read(); read_buffer[read_buffer_length++] = incoming_byte;
                 }
                 done = true;
             break;
         }
     }
     digitalWrite(17, LOW); 
-    return length;
+    return message_num;
 }
