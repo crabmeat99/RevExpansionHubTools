@@ -10,13 +10,21 @@ RevHubDriver rh;
 uint8_t buffer[20];
 int buffer_length;
 
+enum FailSafeState {
+  SEND_FAILSAFE,
+  WAIT_FOR_ACK
+};
+
+FailSafeState failsafe_state = SEND_FAILSAFE;
+
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   HWSERIAL.begin(460800);
   HWSERIAL.transmitterEnable(18);
   HWSERIAL.flush();
   HWSERIAL.clear();
   pinMode(17, OUTPUT);
+  digitalWrite(17, LOW); 
 }
 
 //unsigned char packet[] = {0x44, 0x4B, 0x0E, 0x00, 0x02, 0x00, 0x4C, 0x00, 0x21, 0x10, 0x01, 0xEA, 0x06, 0x0D};
@@ -28,30 +36,34 @@ void loop() {
   //     HWSERIAL.write(packet[i]);
   // }
 
-  Serial.printf("Starting... \n");
+  //Serial.printf("Loop... \n");
   // rh.LynxSetMotorChannelModeCommand(buffer, &buffer_length, 1, RevHubDriver::RUN_WITHOUT_ENCODER, false);  
   // Serial.printf("Len: %d\n",buffer_length);
   // for (int i=0;i<buffer_length;i++) {
   //   Serial.printf("%02x\n",buffer[i]);
   // }
 
-  rh.CommandFailSafe(buffer, &buffer_length);  
-  // for (int i=0;i<buffer_length;i++) {
-  //   Serial.printf("%02x\n",buffer[i]);
-  // }
-  rh.WritePacket(&HWSERIAL, buffer, buffer_length);
+  switch (failsafe_state) {
+    case SEND_FAILSAFE:
+      delay(500);
+      rh.CommandFailSafe(buffer, &buffer_length); 
+      Serial.printf("Send FailSafe num = %d\n",buffer[6]); 
+      rh.WritePacket(&HWSERIAL, buffer, buffer_length);
+      failsafe_state = WAIT_FOR_ACK;
+    break;
 
-  while (HWSERIAL.available()) {
-    int extra = HWSERIAL.available();
-    Serial.printf("e=%d\n",extra);
-    if (extra > 0) {
-    int length = rh.ReadPacket(&HWSERIAL);
-    Serial.printf("l=%d\n",length);
-    }
+    case WAIT_FOR_ACK:
+      int a = HWSERIAL.available();
+      if (a > 9) {
+        Serial.printf("\nBefore ReadPacket\n");
+        int length = rh.ReadPacket(&HWSERIAL);
+        Serial.printf("packet number=%d\n",length);
+        Serial.printf("print len: %d\n",rh.read_buffer_length);
+        Serial.printf("Ack n = %d \n",rh.read_buffer[7]);
+        for (int i=0;i<rh.read_buffer_length;i++) Serial.printf("b: %d %02x\n",i,(int)rh.read_buffer[i]);
+        failsafe_state = SEND_FAILSAFE;
+      }
   }
 
-  //rh.WritePacket(&HWSERIAL, buffer, buffer_length);
-
-  delay(1500);
-  //while(1){};
+  //delay(1500);
 }
