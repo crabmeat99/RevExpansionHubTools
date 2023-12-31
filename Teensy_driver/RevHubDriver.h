@@ -54,21 +54,23 @@ public:
   uint8_t read_buffer[100];
   int read_buffer_length;
 
-  RevHubDriver();
-  virtual ~RevHubDriver();
-  
   u_int8_t CreateCRC(u_int8_t *byte, int len);
-  void LynxSetMotorChannelModeCommand(uint8_t *buffer,int *buffer_len, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero);
-  void LynxSetMotorConstantPowerCommand(uint8_t *buffer, int *buffer_length, uint8_t motor, uint16_t power);
-  void LynxSetMotorTargetVelocityCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, int16_t velocity);
-  void LynxSetMotorChannelEnableCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t enable);
-  void LynxSetMotorTargetPositionCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint32_t target, uint16_t tolerance);
-  void LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buffer,int *buffer_length, uint8_t motor, uint8_t mode);
+  void LynxSetMotorChannelModeCommand(uint8_t *buf,int *bufLen, uint8_t motor, RevHubDriver::MotorMode mode, bool floatAtZero);
+  void LynxSetMotorConstantPowerCommand(uint8_t *buf, int *bufLen, uint8_t motor, uint16_t power);
+  void LynxSetMotorTargetVelocityCommand(uint8_t *buf,int *bufLen, uint8_t motor, int16_t velocity);
+  void LynxSetMotorChannelEnableCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t enable);
+  void LynxSetMotorTargetPositionCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint32_t target, uint16_t tolerance);
+  void LynxGetMotorPIDFControlLoopCoefficientsCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t mode);
+  void LynxGetMotorEncoderPositionCommand(uint8_t *buf,int *bufLen, uint8_t motor);
+  void LynxSetServoEnableCommand(uint8_t *buf,int *bufLen, uint8_t channel, uint8_t enable);
+  void LynxSetMotorPIDControlLoopCoefficientsCommand(uint8_t *buf,int *bufLen, uint8_t motor, uint8_t mode, uint32_t p, uint32_t i, uint32_t d);
 
-  int CommandFailSafe(uint8_t *packet,int *packet_len);
-
+  void CommandFailSafe(uint8_t *packet,int *packet_len);
   void WritePacket(HardwareSerial *s, uint8_t *buffer, int buffer_length);
   int ReadPacket(HardwareSerial *s);
+
+  RevHubDriver();
+  virtual ~RevHubDriver();
 
   uint8_t packet_number_=1;
   uint8_t dest_module_=2;
@@ -78,7 +80,3 @@ protected:
 };
 
 #endif
-
-
-
-
