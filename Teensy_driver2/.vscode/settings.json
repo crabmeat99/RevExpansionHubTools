@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp",
+        "revhub.h": "c",
+        "packet.h": "c",
+        "command.h": "c",
+        "rhsp_module.h": "c",
+        "arrayutils.h": "c",
+        "rhsp_dio.h": "c",
+        "rhsp_serial.h": "c",
+        "hardwareserial.h": "c"
+    }
+}
