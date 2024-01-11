@@ -193,6 +193,8 @@ int rhsp_getModuleLedColor(RhspRevHub* hub,
  *
  * */
 int rhsp_setModuleLedPattern(RhspRevHub* hub, const RhspLedPattern* ledPattern, uint8_t* nackReasonCode);
+int rhsp_setModuleLedPattern1(RhspRevHub* hub, uint8_t* nackReasonCode);
+int rhsp_setModuleLedPattern2(RhspRevHub* hub, uint8_t* nackReasonCode);
 
 /**
  * @brief Obtain the current LED pattern

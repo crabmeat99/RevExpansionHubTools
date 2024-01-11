@@ -20,7 +20,7 @@
 #define RHSP_SERIAL_INFINITE_TIMEOUT    -1
 
 typedef struct {
-    HardwareSerial *s;
+    HardwareSerial *hardwareSerial;
     int rxTimeoutMs;
 } RhspSerial;
 
@@ -32,25 +32,7 @@ typedef struct {
  * @note this fucntion shall be called once before using serial port
  *
  * */
-void rhsp_serialInit(RhspSerial* serial);
-
-/**
- * @brief open serial port
- *
- * @param[in] serial         serial port instance
- * @param[in] serialPortName serial port name
- * @param[in] baudrate       baudrate, bits/sec
- * @param[in] databits       databits
- * @param[in] parity         parity
- * @param[in] stopbits       stopbits
- * @param[in] flowControl    flow control
- *
- * @return RHSP_SERIAL_NOERROR in case success
- *
- * */
-int rhsp_serialOpen(RhspSerial* serial,
-                    uint32_t baudrate
-);
+RhspSerial* rhsp_serialInit(HardwareSerial *s);
 
 /**
  * @brief read bytes from serial port

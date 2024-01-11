@@ -68,10 +68,12 @@ static int parse(RhspRevHubInternal* hub)
     {
         case RHSP_RX_STATES_FIRST_BYTE:
             bytesTransferred = serialRead(hub->serialPort, &hub->rxBuffer[0], 1);
-            if (bytesTransferred < 0)
+            if (bytesTransferred <= 0)
             {
                 return bytesTransferred;
             }
+// if (bytesTransferred == 1) {Serial.printf("1st: %02x\n",hub->rxBuffer[0]);}
+// Serial.println("");
             // @TODO First and second bytes should be replaced by macro like RHSP_PACKET_FIRST_BYTE
             if (bytesTransferred != 1 || hub->rxBuffer[0] != 0x44)
             {
@@ -83,11 +85,11 @@ static int parse(RhspRevHubInternal* hub)
 
         case RHSP_RX_STATES_SECOND_BYTE:
             bytesTransferred = serialRead(hub->serialPort, &hub->rxBuffer[1], 1);
-            if (bytesTransferred < 0)
+            if (bytesTransferred <= 0)
             {
                 return bytesTransferred;
             }
-
+// if (bytesTransferred == 1) {Serial.printf("2nd: %02x\n",hub->rxBuffer[1]);}
             if (bytesTransferred != 1 || hub->rxBuffer[1] != 0x4B)
             {
                 hub->rxState = RHSP_RX_STATES_FIRST_BYTE;
@@ -103,7 +105,7 @@ static int parse(RhspRevHubInternal* hub)
 
         case RHSP_RX_STATES_HEADER:
             bytesTransferred = serialRead(hub->serialPort, &hub->rxBuffer[hub->receivedBytes], hub->bytesToReceive);
-            if (bytesTransferred < 0)
+            if (bytesTransferred <= 0)
             {
                 return bytesTransferred;
             }
@@ -138,7 +140,7 @@ static int parse(RhspRevHubInternal* hub)
 
         case RHSP_RX_STATES_PAYLOAD:
             bytesTransferred = serialRead(hub->serialPort, &hub->rxBuffer[hub->receivedBytes], hub->bytesToReceive);
-            if (bytesTransferred < 0)
+            if (bytesTransferred <= 0)
             {
                 return bytesTransferred;
             }
@@ -150,12 +152,12 @@ static int parse(RhspRevHubInternal* hub)
             }
             hub->bytesToReceive = RHSP_PACKET_CRC_SIZE;
             hub->rxState = RHSP_RX_STATES_CRC;
-
+// for (uint8_t i=0;i<hub->receivedBytes;i++) Serial.printf("%02x ", hub->rxBuffer[i]);
             // fall through
             // break;
         case RHSP_RX_STATES_CRC:
             bytesTransferred = serialRead(hub->serialPort, &hub->rxBuffer[hub->receivedBytes], hub->bytesToReceive);
-            if (bytesTransferred < 0)
+            if (bytesTransferred <= 0)
             {
                 return bytesTransferred;
             }
@@ -166,8 +168,10 @@ static int parse(RhspRevHubInternal* hub)
             {
                 break;
             }
+// Serial.printf("Before checksum: %d, %d, %02x\n",hub->receivedBytes, bytesTransferred,hub->rxBuffer[hub->receivedBytes]);
             if (calcChecksum(hub->rxBuffer, hub->receivedBytes) == hub->rxBuffer[hub->receivedBytes])
             {
+digitalWrite(17, HIGH);    digitalWrite(17, LOW);
                 retval = 1;
             }
             hub->rxState = RHSP_RX_STATES_FIRST_BYTE;
@@ -236,12 +240,14 @@ int receivePacket(RhspRevHubInternal* hub)
 
     while ((parseResult = parse(hub)) == 0)
     {
+
         /* process timeout*/
         if (rhsp_getSteadyClockMs() - responseTimeoutMsTimestamp >= hub->responseTimeoutMs &&
             hub->responseTimeoutMs != 0)
         {
             /* no response is received. return timeout error. */
             retval = RHSP_ERROR_RESPONSE_TIMEOUT;
+            Serial.println("TIMEOUT");
             break;
         }
     }

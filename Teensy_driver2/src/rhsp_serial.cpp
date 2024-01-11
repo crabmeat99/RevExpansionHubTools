@@ -11,40 +11,41 @@
 #include "HardwareSerial.h"
 #include "rhsp_serial.h"
 
-void rhsp_serialInit(RhspSerial* serial)
-{
-    if (!serial)
-    {
-        return;
-    }
-}
 
-int rhsp_serialOpen(RhspSerial* serial,
-                    uint32_t baudrate
-                    )
+RhspSerial* rhsp_serialInit(HardwareSerial *s)
 {
-    if (!serial)
-    {
-        return RHSP_SERIAL_ERROR;
-    }
+    RhspSerial *serial = new RhspSerial();
 
-    return 0;
+    s->begin(460800);
+    s->transmitterEnable(18);
+    s->flush();
+    s->clear();
+    pinMode(17, OUTPUT);
+    digitalWrite(17, LOW);
+
+    serial->hardwareSerial = s;
+
+    return serial;
 }
 
 int rhsp_serialRead(RhspSerial* serial, uint8_t* buffer, size_t bytesToRead)
 {
+    uint8_t c;
+
     if (!serial || !buffer)
     {
         return RHSP_SERIAL_ERROR;
     }
 
-    int bytesRead;
+    size_t bytesAvailable = serial->hardwareSerial->available();
+    size_t newBytesToRead = (bytesToRead < bytesAvailable) ? bytesToRead : bytesAvailable;
 
-    //int x = Serial5.available();
-    // ssize_t retval;
-    // struct timeval tvTimeout;
+    for (size_t i=0;i<newBytesToRead;i++) {
+        c = serial->hardwareSerial->read();
+        buffer[i] = c;
+    }
 
-    return bytesRead;
+    return newBytesToRead;
 }
 
 //
@@ -57,8 +58,11 @@ int rhsp_serialWrite(RhspSerial* serial, const uint8_t* buffer, size_t bytesToWr
         return RHSP_SERIAL_ERROR;
     }
 
+    for (size_t i=0;i<bytesToWrite;i++) {
+        serial->hardwareSerial->write(buffer[i]);
+    }
 
-    return 0;
+    return bytesToWrite;
 }
 
 void rhsp_serialClose(RhspSerial* serial)

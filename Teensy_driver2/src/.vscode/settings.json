@@ -1,5 +1,13 @@
 {
     "files.associations": {
-        "rhsp_serial.h": "c"
+        "rhsp_serial.h": "c",
+        "hardwareserial.h": "c",
+        "atomic": "cpp",
+        "cstdint": "cpp",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp",
+        "typeinfo": "cpp"
     }
 }

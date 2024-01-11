@@ -145,6 +145,28 @@ int rhsp_getModuleLedColor(RhspRevHub* hub,
     return retval;
 }
 
+int rhsp_setModuleLedPattern1(RhspRevHub* hub, uint8_t* nackReasonCode)
+{
+    if (!hub)
+    {
+        return RHSP_ERROR;
+    }
+
+    uint8_t buffer[] = {0x00, 0x00, 0x00, 0x00};
+    return rhsp_sendWriteCommandInternal(hub, 0x7F0C, (const uint8_t*) buffer, sizeof(buffer), nackReasonCode);
+}
+
+int rhsp_setModuleLedPattern2(RhspRevHub* hub, uint8_t* nackReasonCode)
+{
+    if (!hub)
+    {
+        return RHSP_ERROR;
+    }
+
+    uint8_t buffer[] = {0x2D,0x00,0xFF,0x00,0x05,0x00,0x00,0x00,0x05,0xFF,0x00,0x00,0x05,0x00,0x00,0x00,0x05,0xFF,0x00,0x00,0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    return rhsp_sendWriteCommandInternal(hub, 0x7F0C, (const uint8_t*) buffer, sizeof(buffer), nackReasonCode);
+}
+
 int rhsp_setModuleLedPattern(RhspRevHub* hub, const RhspLedPattern* ledPattern, uint8_t* nackReasonCode)
 {
     if (!hub)

@@ -7,15 +7,9 @@
 #include <time.h>
 
 #include "rhsp_time.h"
+#include <Arduino.h>
 
 uint32_t rhsp_getSteadyClockMs(void)
 {
-    // struct timespec time_spec;
-
-    // int retval = clock_gettime(CLOCK_MONOTONIC, &time_spec);
-    // //rhsp_assert(retval >= 0);
-    // if (retval < 0)
-    //     return 0;
-    // return time_spec.tv_sec * 1000UL + time_spec.tv_nsec / 1000000UL;
-    return 0;
+    return millis();
 }

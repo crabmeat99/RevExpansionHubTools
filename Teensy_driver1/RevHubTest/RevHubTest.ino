@@ -49,7 +49,7 @@ void loop() {
       rh.CommandFailSafe(buffer, &buffer_length); 
       Serial.printf("Send FailSafe num = %d\n",buffer[6]); 
       rh.WritePacket(&HWSERIAL, buffer, buffer_length);
-      failsafe_state = WAIT_FOR_ACK;
+      failsafe_state = SEND_FAILSAFE;
     break;
 
     case WAIT_FOR_ACK:
