@@ -53,7 +53,6 @@ int rhsp_getInterfacePacketID(RhspRevHub* hub,
  * */
 int rhsp_queryInterface(RhspRevHub* hub,
                         const char* interfaceName,
-                        RhspModuleInterface* intf,
                         uint8_t* nackReasonCode);
 
 #endif //RHSP_MODULE_H

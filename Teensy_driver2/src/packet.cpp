@@ -247,7 +247,6 @@ int receivePacket(RhspRevHubInternal* hub)
         {
             /* no response is received. return timeout error. */
             retval = RHSP_ERROR_RESPONSE_TIMEOUT;
-            Serial.println("TIMEOUT");
             break;
         }
     }
